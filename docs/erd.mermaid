@@ -1,0 +1,90 @@
+erDiagram
+    dim_dates {
+        date date_id PK
+        int day_of_week
+        varchar day_name
+        int month
+        varchar month_name
+        int quarter
+        int year
+        boolean is_weekend
+    }
+    
+    dim_stores {
+        varchar store_id PK
+        varchar store_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    dim_members {
+        varchar member_id PK
+        varchar member_name
+        varchar membership_type
+        date join_date
+        date expiration_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    dim_member_preferences {
+        serial preference_id PK
+        varchar member_id FK
+        varchar preference_description
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    dim_campaigns {
+        varchar campaign_id PK
+        varchar target_audience
+        varchar store_id FK
+        date campaign_start_date
+        date campaign_end_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    dim_items {
+        serial item_id PK
+        varchar item_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    fact_orders {
+        varchar order_id PK
+        varchar member_id FK
+        varchar store_id FK
+        varchar campaign_id FK
+        date order_date FK
+        numeric subtotal
+        numeric total
+        timestamp created_at
+    }
+    
+    fact_order_items {
+        serial order_item_id PK
+        varchar order_id FK
+        int item_id FK
+        numeric price
+        timestamp created_at
+    }
+    
+    fact_order_status {
+        serial status_id PK
+        varchar order_id FK
+        varchar status
+        timestamp status_timestamp
+        timestamp created_at
+    }
+    
+    dim_members ||--o{ dim_member_preferences : has
+    dim_members ||--o{ fact_orders : places
+    dim_stores ||--o{ fact_orders : hosts
+    dim_stores ||--o{ dim_campaigns : runs
+    dim_campaigns ||--o{ fact_orders : influences
+    dim_dates ||--o{ fact_orders : dates
+    fact_orders ||--o{ fact_order_items : contains
+    fact_orders ||--o{ fact_order_status : tracks
+    dim_items ||--o{ fact_order_items : includes
